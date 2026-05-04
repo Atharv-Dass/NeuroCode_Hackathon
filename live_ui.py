@@ -27,7 +27,6 @@ _CLR = {
     "bar_bg":     (50,   50,  50),
 }
 
-# Simple thresholds just for colouring (not diagnosis)
 _THRESH_WARN  = 4.0   # Hz
 _THRESH_ALERT = 7.0   # Hz
 
@@ -100,6 +99,7 @@ def _draw_spectrum(
     pts_arr = np.array(pts, dtype=np.int32).reshape(-1, 1, 2)
     cv2.polylines(img, [pts_arr], False, colour, 1, cv2.LINE_AA)
 
+
 def _draw_amplitude_bar(
     img: np.ndarray,
     x: int, y: int, bar_w: int, bar_h: int,
@@ -127,7 +127,8 @@ def _draw_amplitude_bar(
 
     # Border
     cv2.rectangle(img, (x, y), (x + bar_w, y + bar_h), _CLR["border"], 1)
-    
+
+
 def _render_hud(
     frame: np.ndarray,
     results_left: Dict[str, float],
@@ -306,11 +307,15 @@ def run_live(camera_index: int = 0, width: int = 1280, height: int = 720) -> Non
                         continue
                     detected_labels.add(side)
 
-                    y_px = float(np.clip(lm.landmark[8].y, 0.0, 1.0)) * h
+                    # Relative motion: fingertip − wrist (cancels camera shake)
+                    wrist_y  = float(np.clip(lm.landmark[0].y, 0.0, 1.0))
+                    finger_y = float(np.clip(lm.landmark[8].y, 0.0, 1.0))
+                    rel_y_px = (finger_y - wrist_y) * h
+
                     if side == "Left":
-                        left_buf.add(y_px)
+                        left_buf.add(rel_y_px)
                     else:
-                        right_buf.add(y_px)
+                        right_buf.add(rel_y_px)
 
                     mp.solutions.drawing_utils.draw_landmarks(
                         frame, lm, mp_hands.HAND_CONNECTIONS

@@ -279,11 +279,15 @@ def run_video(video_path: str) -> None:
                         continue
                     detected_labels.add(side)
 
-                    y_px = float(np.clip(lm.landmark[8].y, 0.0, 1.0)) * h
+                    # Relative motion: fingertip − wrist
+                    wrist_y  = float(np.clip(lm.landmark[0].y, 0.0, 1.0))
+                    finger_y = float(np.clip(lm.landmark[8].y, 0.0, 1.0))
+                    rel_y_px = (finger_y - wrist_y) * h
+
                     if side == "Left":
-                        left_buf.add(y_px)
+                        left_buf.add(rel_y_px)
                     else:
-                        right_buf.add(y_px)
+                        right_buf.add(rel_y_px)
 
                     mp.solutions.drawing_utils.draw_landmarks(
                         frame, lm, mp_hands.HAND_CONNECTIONS

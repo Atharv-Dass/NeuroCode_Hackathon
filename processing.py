@@ -23,10 +23,12 @@ class HandBuffer:
     fps: float
     y_series: deque = field(default_factory=lambda: deque(maxlen=120))
 
-    def add(self, y_pixel: float):
-        self.y_series.append(y_pixel)
+    def add(self, y_value: float):
+        # y_value is now RELATIVE (finger - wrist) in pixels
+        self.y_series.append(y_value)
 
     def ready(self) -> bool:
+        # Require at least 2 seconds of data
         return len(self.y_series) >= int(self.fps * 2)
 
     def analyze(self) -> Optional[dict]:
@@ -36,14 +38,24 @@ class HandBuffer:
         arr = np.array(self.y_series, dtype=float)
         arr -= np.mean(arr)
 
+        # Time‑domain gate: if the hand barely moved, treat as no tremor
+        if arr.max() - arr.min() < 2.0:  # 2 px peak‑to‑peak; tune as needed
+            return {
+                "freq_hz":      0.0,
+                "amplitude_px": 0.0,
+                "label":        "No significant tremor",
+            }
+
         n = len(arr)
         win = windows.hann(n)
         spectrum = np.abs(fft(arr * win))[: n // 2]
         freqs = fftfreq(n, d=1.0 / self.fps)[: n // 2]
 
+        # Limit to clinically relevant tremor band
         mask = (freqs >= TREMOR_LOW_HZ) & (freqs <= TREMOR_HIGH_HZ)
         if not np.any(mask):
-            return {"freq_hz": 0.0, "amplitude_px": 0.0, "label": "No tremor detected"}
+            return {"freq_hz": 0.0, "amplitude_px": 0.0,
+                    "label": "No tremor detected"}
 
         band = spectrum.copy()
         band[~mask] = 0
@@ -59,7 +71,8 @@ class HandBuffer:
 
 
 def _classify(freq_hz: float, amp_px: float) -> str:
-    if amp_px < 0.2:
+    # Raise amplitude floor so tiny residual jitter is ignored
+    if amp_px < 0.3:  # try 0.4–0.7 px and tune
         return "No significant tremor"
     if PD_RANGE[0] <= freq_hz <= PD_RANGE[1]:
         return "Parkinsonian Range (3–7 Hz)"
@@ -75,9 +88,10 @@ def compute_asymmetry(left: Optional[dict], right: Optional[dict]) -> Optional[d
     eps = 1e-6
     ai = (L - R) / (L + R + eps)
     return {
-        "value":    round(ai, 3),
-        "percent":  round(abs(ai) * 100, 1),
-        "dominant": ("Left" if ai > 0 else "Right") if abs(ai) > 0.05 else "Symmetric",
+        "value":   round(ai, 3),
+        "percent": round(abs(ai) * 100, 1),
+        "dominant": ("Left" if ai > 0 else "Right")
+        if abs(ai) > 0.05 else "Symmetric",
     }
 
 
@@ -118,11 +132,15 @@ def analyze_video(video_path: str) -> dict:
             for lm, handedness in zip(results.multi_hand_landmarks,
                                       results.multi_handedness):
                 side = handedness.classification[0].label  # "Left" or "Right"
-                y_px = lm.landmark[LANDMARK_IDX].y * h
+
+                wrist_y  = float(np.clip(lm.landmark[0].y, 0.0, 1.0))
+                finger_y = float(np.clip(lm.landmark[LANDMARK_IDX].y, 0.0, 1.0))
+                rel_y_px = (finger_y - wrist_y) * h  # relative movement in pixels
+
                 if side == "Left":
-                    left_buf.add(y_px)
+                    left_buf.add(rel_y_px)
                 else:
-                    right_buf.add(y_px)
+                    right_buf.add(rel_y_px)
 
     cap.release()
     hands_model.close()
@@ -139,9 +157,6 @@ def analyze_video(video_path: str) -> dict:
         "asymmetry": asym,
     }
 
-from scipy.fft import fft, fftfreq
-from scipy.signal import windows
-import numpy as np
 
 def get_fft_arrays(buf: HandBuffer):
     """
