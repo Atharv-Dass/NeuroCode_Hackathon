@@ -138,3 +138,25 @@ def analyze_video(video_path: str) -> dict:
         "right": right_result,
         "asymmetry": asym,
     }
+
+from scipy.fft import fft, fftfreq
+from scipy.signal import windows
+import numpy as np
+
+def get_fft_arrays(buf: HandBuffer):
+    """
+    Return (freqs, magnitudes) for plotting FFT from a HandBuffer,
+    using the same detrend + Hann window + normalization as analyze().
+    """
+    if not buf.ready():
+        return np.array([]), np.array([])
+    arr = np.array(buf.y_series, dtype=float)
+    arr -= np.mean(arr)
+    n = len(arr)
+    win = windows.hann(n)
+    spectrum = np.abs(fft(arr * win))[: n // 2]
+    freqs = fftfreq(n, d=1.0 / buf.fps)[: n // 2]
+    mags = spectrum / (n / 2)
+    # Restrict to a sane display band
+    mask = (freqs >= 0.5) & (freqs <= 15.0)
+    return freqs[mask], mags[mask]
