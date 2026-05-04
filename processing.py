@@ -145,8 +145,8 @@ import numpy as np
 
 def get_fft_arrays(buf: HandBuffer):
     """
-    Return (freqs, magnitudes) for plotting FFT from a HandBuffer,
-    using the same detrend + Hann window + normalization as analyze().
+    Return (freqs, magnitudes) for plotting, using the same
+    detrend + Hann window + normalization as analyze().
     """
     if not buf.ready():
         return np.array([]), np.array([])
@@ -157,6 +157,6 @@ def get_fft_arrays(buf: HandBuffer):
     spectrum = np.abs(fft(arr * win))[: n // 2]
     freqs = fftfreq(n, d=1.0 / buf.fps)[: n // 2]
     mags = spectrum / (n / 2)
-    # Restrict to a sane display band
+    # Restrict to a useful band for display
     mask = (freqs >= 0.5) & (freqs <= 15.0)
     return freqs[mask], mags[mask]
