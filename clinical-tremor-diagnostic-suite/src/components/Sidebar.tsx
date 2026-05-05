@@ -5,7 +5,8 @@ import {
   FileText, 
   TrendingUp, 
   Settings as SettingsIcon,
-  LogOut 
+  LogOut,
+  ArrowLeftRight
 } from 'lucide-react';
 import { Page } from '../App';
 
@@ -20,6 +21,7 @@ const Sidebar = ({ currentPage, onNavigate }: SidebarProps) => {
     { id: 'diagnostic' as Page, label: 'Diagnostic', icon: Stethoscope },
     { id: 'history' as Page, label: 'Lab Results', icon: FileText },
     { id: 'analytics' as Page, label: 'Analytics', icon: TrendingUp },
+    { id: 'compare'  as Page, label: 'Compare Sessions',  icon: ArrowLeftRight  },
     { id: 'settings' as Page, label: 'Settings', icon: SettingsIcon },
   ];
 

@@ -7,8 +7,9 @@ import Diagnostic from './pages/Diagnostic';
 import History from './pages/History';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Compare from './pages/Compare';
 
-export type Page = 'landing' | 'dashboard' | 'diagnostic' | 'history' | 'analytics' | 'settings';
+export type Page = 'landing' | 'dashboard' | 'diagnostic' | 'history' | 'analytics' | 'settings' | 'compare';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('landing');
@@ -38,6 +39,8 @@ function App() {
         return <History onNavigate={handleNavigate} onViewSession={handleViewSession} />;
       case 'analytics':
         return <Analytics onNavigate={handleNavigate} sessionId={viewingSessionId} />;
+      case 'compare':
+        return <Compare onNavigate={handleNavigate} />;
       case 'settings':
         return <Settings onNavigate={handleNavigate} />;
       default:

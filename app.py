@@ -15,7 +15,6 @@ import numpy as np
 
 from processing import analyze_video, convert_webm_to_mp4
 
-
 app = FastAPI(title="OBT Quantifier API")
 
 app.add_middleware(
@@ -31,8 +30,8 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 SESSIONS_FILE = Path("sessions.json")
 
-mp_hands_module   = mp.solutions.hands
-mp_drawing        = mp.solutions.drawing_utils
+mp_hands_module = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 
 
@@ -46,8 +45,10 @@ def _load_sessions() -> list[dict]:
             return []
     return []
 
+
 def _save_sessions(sessions: list[dict]):
     SESSIONS_FILE.write_text(json.dumps(sessions, indent=2))
+
 
 SESSIONS: list[dict] = _load_sessions()
 
@@ -55,47 +56,57 @@ SESSIONS: list[dict] = _load_sessions()
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _build_response(result: dict) -> dict:
-    left  = result.get("left")  or {"freq_hz": 0.0, "amplitude_px": 0.0, "label": "No tremor"}
+    left = result.get("left") or {"freq_hz": 0.0, "amplitude_px": 0.0, "label": "No tremor"}
     right = result.get("right") or {"freq_hz": 0.0, "amplitude_px": 0.0, "label": "No tremor"}
     dominant = left if left["amplitude_px"] >= right["amplitude_px"] else right
 
-    left_spec = result.get("left_spectrum") or {}
-    freqs = left_spec.get("freqs", [])
-    mags  = left_spec.get("mags",  [])
+    # FIX: don't always use left_spectrum
+    left_spec = result.get("left_spectrum") or {"freqs": [], "mags": []}
+    right_spec = result.get("right_spectrum") or {"freqs": [], "mags": []}
+
+    # Use whichever hand actually has more FFT points
+    dominant_spec = (
+        left_spec
+        if len(left_spec.get("freqs", [])) >= len(right_spec.get("freqs", []))
+        else right_spec
+    )
+
+    freqs = dominant_spec.get("freqs", [])
+    mags = dominant_spec.get("mags", [])
 
     spectrogram_data = [
         {"frequency": float(f), "amplitude": float(m)}
         for f, m in zip(freqs, mags)
     ]
 
-    max_amp    = dominant["amplitude_px"]
+    max_amp = dominant["amplitude_px"]
     confidence = min(99, int(70 + min(max_amp, 5.0) * 6)) if max_amp > 0 else 50
 
     return {
-        "frequency":       float(dominant["freq_hz"]),
-        "amplitude":       float(dominant["amplitude_px"]),
-        "confidence":      confidence,
+        "frequency": float(dominant["freq_hz"]),
+        "amplitude": float(dominant["amplitude_px"]),
+        "confidence": confidence,
         "spectrogramData": spectrogram_data,
         "leftHand": {
             "frequency": float(left["freq_hz"]),
             "amplitude": float(left["amplitude_px"]),
-            "label":     left["label"],
+            "label": left["label"],
         },
         "rightHand": {
             "frequency": float(right["freq_hz"]),
             "amplitude": float(right["amplitude_px"]),
-            "label":     right["label"],
+            "label": right["label"],
         },
-        "asymmetry":       result.get("asymmetry"),
+        "asymmetry": result.get("asymmetry"),
         "framesProcessed": result.get("frames_processed", 0),
-        "fps":             result.get("fps", 0.0),
+        "fps": result.get("fps", 0.0),
     }
 
 
 def _save_upload(file: UploadFile) -> tuple[str, str]:
-    suffix     = Path(file.filename or "upload.mp4").suffix or ".mp4"
+    suffix = Path(file.filename or "upload.mp4").suffix or ".mp4"
     saved_name = f"{uuid.uuid4().hex}{suffix}"
-    save_path  = UPLOAD_DIR / saved_name
+    save_path = UPLOAD_DIR / saved_name
     with open(save_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return str(save_path), saved_name
@@ -122,13 +133,13 @@ def _generate_annotated_frames(video_path: str):
     if not cap.isOpened():
         return
 
-    fps          = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     if fps <= 0 or fps > 120:
         fps = 30.0
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
-    buf_size     = int(fps * 4)
+    buf_size = int(fps * 4)
 
-    left_buf  = deque(maxlen=buf_size)
+    left_buf = deque(maxlen=buf_size)
     right_buf = deque(maxlen=buf_size)
 
     display = {
@@ -151,18 +162,18 @@ def _generate_annotated_frames(video_path: str):
         arr -= arr.mean()
         if arr.max() - arr.min() < 1.0:
             return 0.0, 0.0, "No tremor"
-        n    = len(arr)
-        win  = windows.hann(n)
+        n = len(arr)
+        win = windows.hann(n)
         spec = np.abs(fft(arr * win))[:n // 2]
         freqs = fftfreq(n, d=1.0 / fps)[:n // 2]
-        mask  = (freqs >= 3.0) & (freqs <= 12.0)
+        mask = (freqs >= 3.0) & (freqs <= 12.0)
         if not mask.any():
             return 0.0, 0.0, "–"
         band = spec.copy()
         band[~mask] = 0
         idx = int(np.argmax(band))
-        pf  = float(freqs[idx])
-        pa  = float(band[idx]) / (n / 2)
+        pf = float(freqs[idx])
+        pa = float(band[idx]) / (n / 2)
         if pa < 0.15:
             lbl = "No tremor"
         elif 3.0 <= pf <= 7.0:
@@ -193,7 +204,7 @@ def _generate_annotated_frames(video_path: str):
                     (w - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (180, 180, 180), 1)
 
         progress = frame_idx / total_frames
-        bar_w    = int(w * progress)
+        bar_w = int(w * progress)
         cv2.rectangle(frame, (0, h - 8), (w, h), (20, 20, 20), -1)
         cv2.rectangle(frame, (0, h - 8), (bar_w, h), (0, 120, 200), -1)
         cv2.putText(frame, f"{int(progress * 100)}%",
@@ -208,14 +219,14 @@ def _generate_annotated_frames(video_path: str):
                 break
             frame_idx += 1
             h, w = frame.shape[:2]
-            rgb  = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = hands_model.process(rgb)
 
             if results.multi_hand_landmarks and results.multi_handedness:
                 for lm, handedness in zip(
                     results.multi_hand_landmarks, results.multi_handedness
                 ):
-                    side  = handedness.classification[0].label
+                    side = handedness.classification[0].label
                     color = (0, 200, 100) if side == "Left" else (255, 140, 0)
 
                     mp_drawing.draw_landmarks(
@@ -230,8 +241,8 @@ def _generate_annotated_frames(video_path: str):
                     cv2.circle(frame, (tx, ty), 12, (255, 255, 255), 2)
 
                     wrist_y = float(lm.landmark[0].y)
-                    tip_y   = float(tip.y)
-                    rel_px  = (tip_y - wrist_y) * h
+                    tip_y = float(tip.y)
+                    rel_px = (tip_y - wrist_y) * h
 
                     if side == "Left":
                         left_buf.append(rel_px)
@@ -281,11 +292,11 @@ async def analyze_video_endpoint(
 ):
     try:
         video_path, saved_name = _save_upload(video)
-        result   = analyze_video(video_path)
+        result = analyze_video(video_path)
         response = _build_response(result)
         response["patientId"] = patientId
-        response["method"]    = "upload"
-        response["filename"]  = video.filename
+        response["method"] = "upload"
+        response["filename"] = video.filename
         response["savedName"] = saved_name
         return response
     except Exception as e:
@@ -297,7 +308,7 @@ async def analyze_live_endpoint(
     video: UploadFile = File(...),
     patientId: str = Form(...),
     duration: Optional[str] = Form(None),
-    method: Optional[str]   = Form("live-camera"),
+    method: Optional[str] = Form("live-camera"),
 ):
     try:
         video_path, saved_name = _save_upload(video)
@@ -310,12 +321,12 @@ async def analyze_live_endpoint(
         )
         cap_test.release()
 
-        result   = analyze_video(video_path)
+        result = analyze_video(video_path)
         response = _build_response(result)
         response["patientId"] = patientId
-        response["method"]    = method
-        response["duration"]  = duration
-        response["filename"]  = video.filename
+        response["method"] = method
+        response["duration"] = duration
+        response["filename"] = video.filename
         response["savedName"] = saved_name
         return response
     except Exception as e:
@@ -375,17 +386,17 @@ def video_info(saved_name: str):
     path = UPLOAD_DIR / saved_name
     if not path.exists():
         raise HTTPException(status_code=404, detail="Not found")
-    cap      = cv2.VideoCapture(str(path))
-    fps      = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    frames   = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
-    width    = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    cap = cv2.VideoCapture(str(path))
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    frames = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     cap.release()
     duration = round(frames / fps, 1) if fps > 0 else 0
     return {
-        "fps":        round(fps, 1),
-        "duration":   duration,
-        "width":      width,
-        "height":     height,
+        "fps": round(fps, 1),
+        "duration": duration,
+        "width": width,
+        "height": height,
         "resolution": f"{width}x{height}",
     }
