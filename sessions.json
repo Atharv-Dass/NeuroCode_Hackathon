@@ -1,0 +1,289 @@
+[
+  {
+    "id": "d0a0c304-d5fd-430c-a5c2-d110afecf945",
+    "patientId": "PT-1",
+    "date": "2026-05-05",
+    "timestamp": 1777943668765,
+    "frequency": 4.25,
+    "amplitude": 0.79,
+    "confidence": 74,
+    "label": "Parkinsonian Range (3\u20137 Hz)",
+    "status": "alert",
+    "method": "live-camera",
+    "duration": 30,
+    "spectrogramData": [],
+    "leftHand": {
+      "frequency": 0,
+      "amplitude": 0,
+      "label": "No tremor"
+    },
+    "rightHand": {
+      "frequency": 4.25,
+      "amplitude": 0.79,
+      "label": "Parkinsonian Range (3\u20137 Hz)"
+    },
+    "asymmetry": null
+  },
+  {
+    "id": "b779ffb0-b589-4c72-972b-14abff524a8e",
+    "patientId": "PT-2",
+    "date": "2026-05-05",
+    "timestamp": 1777943739950,
+    "frequency": 4.5,
+    "amplitude": 3.29,
+    "confidence": 89,
+    "label": "Parkinsonian Range (3\u20137 Hz)",
+    "status": "alert",
+    "method": "upload",
+    "duration": 21,
+    "spectrogramData": [
+      {
+        "frequency": 0.5,
+        "amplitude": 7.664195741206908
+      },
+      {
+        "frequency": 0.75,
+        "amplitude": 9.122745573819843
+      },
+      {
+        "frequency": 1,
+        "amplitude": 4.294003477333653
+      },
+      {
+        "frequency": 1.25,
+        "amplitude": 6.747073257506153
+      },
+      {
+        "frequency": 1.5,
+        "amplitude": 6.187838278877106
+      },
+      {
+        "frequency": 1.75,
+        "amplitude": 2.568778122956115
+      },
+      {
+        "frequency": 2,
+        "amplitude": 2.141983044035636
+      },
+      {
+        "frequency": 2.25,
+        "amplitude": 2.1731295313376586
+      },
+      {
+        "frequency": 2.5,
+        "amplitude": 1.0267528822065242
+      },
+      {
+        "frequency": 2.75,
+        "amplitude": 0.8799236428834726
+      },
+      {
+        "frequency": 3,
+        "amplitude": 1.3262133936651215
+      },
+      {
+        "frequency": 3.25,
+        "amplitude": 1.4585469598048084
+      },
+      {
+        "frequency": 3.5,
+        "amplitude": 1.9586924224693416
+      },
+      {
+        "frequency": 3.75,
+        "amplitude": 1.5277572628817417
+      },
+      {
+        "frequency": 4,
+        "amplitude": 1.5058458427382204
+      },
+      {
+        "frequency": 4.25,
+        "amplitude": 2.9759531078697803
+      },
+      {
+        "frequency": 4.5,
+        "amplitude": 3.2866345959978207
+      },
+      {
+        "frequency": 4.75,
+        "amplitude": 2.1401720361646768
+      },
+      {
+        "frequency": 5,
+        "amplitude": 1.4194628814902497
+      },
+      {
+        "frequency": 5.25,
+        "amplitude": 3.1344058605613867
+      },
+      {
+        "frequency": 5.5,
+        "amplitude": 1.5965143760390583
+      },
+      {
+        "frequency": 5.75,
+        "amplitude": 0.8813890012319406
+      },
+      {
+        "frequency": 6,
+        "amplitude": 1.4971886444919018
+      },
+      {
+        "frequency": 6.25,
+        "amplitude": 2.682547701357559
+      },
+      {
+        "frequency": 6.5,
+        "amplitude": 2.6545026218803263
+      },
+      {
+        "frequency": 6.75,
+        "amplitude": 1.819672151678321
+      },
+      {
+        "frequency": 7,
+        "amplitude": 1.6935932477498663
+      },
+      {
+        "frequency": 7.25,
+        "amplitude": 2.1061769837357547
+      },
+      {
+        "frequency": 7.5,
+        "amplitude": 1.6616979624577761
+      },
+      {
+        "frequency": 7.75,
+        "amplitude": 0.9551545401765169
+      },
+      {
+        "frequency": 8,
+        "amplitude": 1.3360250104161948
+      },
+      {
+        "frequency": 8.25,
+        "amplitude": 1.5342539717925305
+      },
+      {
+        "frequency": 8.5,
+        "amplitude": 1.6414383172042262
+      },
+      {
+        "frequency": 8.75,
+        "amplitude": 1.2840973237707272
+      },
+      {
+        "frequency": 9,
+        "amplitude": 0.5457674318849742
+      },
+      {
+        "frequency": 9.25,
+        "amplitude": 1.0411437185389496
+      },
+      {
+        "frequency": 9.5,
+        "amplitude": 1.6213327975237029
+      },
+      {
+        "frequency": 9.75,
+        "amplitude": 2.0983795620450683
+      },
+      {
+        "frequency": 10,
+        "amplitude": 1.792084946117933
+      },
+      {
+        "frequency": 10.25,
+        "amplitude": 1.2002258413722595
+      },
+      {
+        "frequency": 10.5,
+        "amplitude": 1.2777362532808647
+      },
+      {
+        "frequency": 10.75,
+        "amplitude": 0.8492610699702543
+      },
+      {
+        "frequency": 11,
+        "amplitude": 0.3743903569577836
+      },
+      {
+        "frequency": 11.25,
+        "amplitude": 0.9803605076636163
+      },
+      {
+        "frequency": 11.5,
+        "amplitude": 1.1282075652826207
+      },
+      {
+        "frequency": 11.75,
+        "amplitude": 0.14455777574659176
+      },
+      {
+        "frequency": 12,
+        "amplitude": 0.7274936342768362
+      },
+      {
+        "frequency": 12.25,
+        "amplitude": 1.3992936528425053
+      },
+      {
+        "frequency": 12.5,
+        "amplitude": 1.0287483353122802
+      },
+      {
+        "frequency": 12.75,
+        "amplitude": 1.3351295034634658
+      },
+      {
+        "frequency": 13,
+        "amplitude": 0.9659321958078303
+      },
+      {
+        "frequency": 13.25,
+        "amplitude": 0.8662044956579139
+      },
+      {
+        "frequency": 13.5,
+        "amplitude": 1.3852582473786557
+      },
+      {
+        "frequency": 13.75,
+        "amplitude": 2.7370296728244456
+      },
+      {
+        "frequency": 14,
+        "amplitude": 2.484786209493776
+      },
+      {
+        "frequency": 14.25,
+        "amplitude": 0.9268541949557334
+      },
+      {
+        "frequency": 14.5,
+        "amplitude": 0.418434985640581
+      },
+      {
+        "frequency": 14.75,
+        "amplitude": 0.7403602820276489
+      }
+    ],
+    "leftHand": {
+      "frequency": 4.5,
+      "amplitude": 3.29,
+      "label": "Parkinsonian Range (3\u20137 Hz)"
+    },
+    "rightHand": {
+      "frequency": 4.25,
+      "amplitude": 2.25,
+      "label": "Parkinsonian Range (3\u20137 Hz)"
+    },
+    "asymmetry": {
+      "value": 0.188,
+      "percent": 18.8,
+      "dominant": "Left"
+    }
+  }
+]
