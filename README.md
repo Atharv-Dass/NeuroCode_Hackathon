@@ -226,7 +226,10 @@ Navigate to **http://localhost:5173** in your browser.
 ## 👨‍💻 Authors
 
 Built by students of **RV College of Engineering (RVCE)**, Bengaluru  
-Experiential Learning Project — Emerging Technology / Industry 4.0 Theme
+Atharv Dass
+Attel Bhavani Prasad
+Yashas M
+Aditya Sunil Pillai 
 
 ***
 
